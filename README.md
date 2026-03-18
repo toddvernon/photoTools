@@ -64,6 +64,10 @@ videocheckqt <directory>
 
 Use `--include-live` to copy Live Photo clips along with everything else.
 
+### Overriding Metadata
+
+If a file's embedded creation date is wrong (e.g. the camera's clock was set incorrectly), you can override it by manually placing the file in the correct day directory. When `photorenumber` or `photocopy` encounters a file whose metadata disagrees with the directory date, it uses the directory date and prints a "strictly misclassified" warning. The file stays where you put it — it is never silently moved based on its metadata.
+
 ## UNKNOWN_DATES
 
 When `photocopy` encounters a file that has no embedded creation date metadata, it cannot determine which day directory the file belongs in. Rather than guessing or discarding the file, it copies it into an `UNKNOWN_DATES` directory inside the source directory for manual review. Common reasons a file ends up here:
