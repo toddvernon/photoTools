@@ -30,6 +30,8 @@ This works great as a family photo archive. Each family member connects their ph
 
 You can also export originals from the Photos app (File > Export > Export Unmodified Originals) to preserve the embedded metadata, then run `photocopy` on the export folder.
 
+All tools produce verbose output — every file copied, skipped, deduplicated, or renumbered is logged to the console so you always know exactly what's happening.
+
 ## Tools
 
 The project builds a single binary that operates as six different tools via symbolic links:
