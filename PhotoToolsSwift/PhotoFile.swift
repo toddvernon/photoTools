@@ -45,6 +45,7 @@ class PhotoFile {
     var second: Int = 0
     var creationDate: Date?
     var hasEXIFdata: Bool = false
+    var isLivePhoto: Bool = false
     var number: Int = 0
     var fileClassification: FileClassification = .other
     
@@ -85,6 +86,7 @@ class PhotoFile {
         second = 0
         creationDate = nil
         hasEXIFdata = false
+        isLivePhoto = false
         number = 0
         fileClassification = .other
     }
@@ -124,20 +126,40 @@ class PhotoFile {
         // check if the file ends in JPG, JPEG, or HEIC
         //-------------------------------------------------------------------------------------------------------------
                 
-        if fileExtension.caseInsensitiveCompare("JPG") != .orderedSame {
-            if fileExtension.caseInsensitiveCompare("JPEG") != .orderedSame {
-                if fileExtension.caseInsensitiveCompare("HEIC") != .orderedSame {
+        let isImage = fileExtension.caseInsensitiveCompare("JPG") == .orderedSame ||
+                      fileExtension.caseInsensitiveCompare("JPEG") == .orderedSame ||
+                      fileExtension.caseInsensitiveCompare("HEIC") == .orderedSame
+        let isVideo = fileExtension.caseInsensitiveCompare("MOV") == .orderedSame
+
+        if !isImage && !isVideo {
+            fileClassification = .other
+            return
+        }
+
+        //-------------------------------------------------------------------------------------------------------------
+        // for MOV files, check if a matching image file exists with the same base name — if so, this is a
+        // Live Photo companion clip and should be skipped
+        //-------------------------------------------------------------------------------------------------------------
+        if isVideo {
+            for ext in ["HEIC", "JPG", "JPEG"] {
+                let pairedPath = (directory as NSString).appendingPathComponent("\(fileName).\(ext)")
+                if FileManager.default.fileExists(atPath: pairedPath) {
+                    isLivePhoto = true
                     fileClassification = .other
                     return
                 }
             }
         }
-        
+
         //-------------------------------------------------------------------------------------------------------------
-        // get the embedded EXIF creation time/date if its there
+        // get the embedded creation time/date if its there
         //
         //-------------------------------------------------------------------------------------------------------------
-        getEXIFdata()
+        if isVideo {
+            getQuickTimeMetadata()
+        } else {
+            getEXIFdata()
+        }
         
         //-------------------------------------------------------------------------------------------------------------
         // create an date object so we can use to compare when sorting
@@ -361,6 +383,66 @@ class PhotoFile {
     }
     
     
+    //-----------------------------------------------------------------------------------------------------------------
+    // getQuickTimeMetadata: get the video creation date from QuickTime metadata
+    //
+    //=================================================================================================================
+    func getQuickTimeMetadata() {
+
+        let fileURL = URL(fileURLWithPath: fullPathToFile)
+        let asset = AVURLAsset(url: fileURL)
+
+        guard let creationDateItem = asset.creationDate else {
+            return
+        }
+
+        guard let dateValue = creationDateItem.dateValue else {
+            return
+        }
+
+        let calendar = Calendar(identifier: .gregorian)
+        let components = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: dateValue)
+
+        guard let y = components.year,
+              let m = components.month,
+              let d = components.day,
+              let h = components.hour,
+              let min = components.minute,
+              let sec = components.second
+        else { return }
+
+        year = y
+        month = m
+        day = d
+        hour = h
+        minute = min
+        second = sec
+        hasEXIFdata = true
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    // checkDurationForLivePhoto: Live Photo MOV clips are typically 1.5-3 seconds.  If the duration is under
+    // 4.5 seconds we flag it as a Live Photo.  This is the fallback for renamed files where we can't match
+    // by base name.
+    //
+    //=================================================================================================================
+    func checkDurationForLivePhoto() {
+
+        guard fileExtension.caseInsensitiveCompare("MOV") == .orderedSame else {
+            return
+        }
+
+        let fileURL = URL(fileURLWithPath: fullPathToFile)
+        let asset = AVURLAsset(url: fileURL)
+        let duration = CMTimeGetSeconds(asset.duration)
+
+        if duration > 0 && duration <= 4.5 {
+            isLivePhoto = true
+        }
+    }
+
+
     //-----------------------------------------------------------------------------------------------------------------
     // withStderrSuppressed: redirects stderr to /dev/null for a single call.  Used to prevent stderr getting ELIF
     // data.  Appled added some stuff that throws errors on certain files with proprietary data.

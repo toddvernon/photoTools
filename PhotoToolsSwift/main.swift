@@ -73,15 +73,28 @@ func photoTools()
 //---------------------------------------------------------------------------------------------------------------------
 
 func photoCopy(arguments: [String]) -> Int {
-    
+
     var sourceDirectory = ""
     var rootArchiveDirectory = ""
+    var includeLive = false
 
-    guard arguments.count == 2 else {
+    //-------------------------------------------------------------------------------------------------------------
+    // parse flags
+    //-------------------------------------------------------------------------------------------------------------
+    var positionalArgs: [String] = []
+    for arg in arguments {
+        if arg == "--include-live" {
+            includeLive = true
+        } else {
+            positionalArgs.append(arg)
+        }
+    }
+
+    guard positionalArgs.count == 2 else {
         NSPrint("")
         NSPrint("[ photoCopy ]")
         NSPrint("")
-        NSPrint("Usage: photocopy <sourcePhotoDirectory> <rootArchiveDirectory:ie /Volumes/Photos>")
+        NSPrint("Usage: photocopy [--include-live] <sourcePhotoDirectory> <rootArchiveDirectory:ie /Volumes/Photos>")
         NSPrint("------------------------------------------------------------------")
         NSPrint("This application takes a source directory argument and copies each JPG")
         NSPrint("file to the archive directory argument placing the file in the correct YEAR")
@@ -93,13 +106,15 @@ func photoCopy(arguments: [String]) -> Int {
         NSPrint("If a source JPG file contains no EXIF data with the photo creation")
         NSPrint("date, then the file is placed in a directory named UNKNOWN_DATE ")
         NSPrint("in the source directory.")
+        NSPrint("")
+        NSPrint("  --include-live   Include Live Photo MOV clips (skipped by default)")
         NSPrint("------------------------------------------------------------------")
         NSPrint(" ")
         return 0
     }
-    
-    sourceDirectory = arguments[0]
-    rootArchiveDirectory = arguments[1]
+
+    sourceDirectory = positionalArgs[0]
+    rootArchiveDirectory = positionalArgs[1]
 
     NSPrint("photocopy:\(sourceDirectory) --> \(rootArchiveDirectory)/")
     
@@ -114,9 +129,22 @@ func photoCopy(arguments: [String]) -> Int {
     // for each image file copy to the correct day directory
     //-----------------------------------------------------------------------------------------------------------------
     for photoFile in pd.photoNameArray {
-        
+
         var isDir: ObjCBool = false
-                
+
+        //-------------------------------------------------------------------------------------------------------------
+        // skip Live Photo MOV clips unless --include-live is specified
+        //-------------------------------------------------------------------------------------------------------------
+        if !includeLive {
+            if !photoFile.isLivePhoto {
+                photoFile.checkDurationForLivePhoto()
+            }
+            if photoFile.isLivePhoto {
+                NSPrint(" skipping Live Photo: %@", photoFile.fullPathToFile)
+                continue
+            }
+        }
+
         //-------------------------------------------------------------------------------------------------------------
         // if the photo has EXIF data for creation date and time taken, then construct the correct path name
         //-------------------------------------------------------------------------------------------------------------
