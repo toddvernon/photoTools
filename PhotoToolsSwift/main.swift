@@ -23,13 +23,26 @@ func NSPrint(_ format: String, _ args: CVarArg...) {
 //---------------------------------------------------------------------------------------------------------------------
 func photoTools()
 {
-    NSPrint("photoTools is a common binary for photo management")
-    NSPrint("create symbolinks to this binary as follows")
-    NSPrint(" ln -s PhotoToolsSwift photoRenumber")
-    NSPrint(" ln -s PhotoToolsSwift photoCopy")
-    NSPrint(" ln -s PhotoToolsSwift photoDedup")
-    NSPrint(" ln -s PhotoToolsSwift photoCheck")
-    NSPrint(" ln -s PhotoToolsSwift photoCheckEXIF")
+    NSPrint("")
+    NSPrint("PhotoToolsSwift — Photo and video backup and organization tools")
+    NSPrint("")
+    NSPrint("This binary provides five tools via symbolic links:")
+    NSPrint("")
+    NSPrint("  photocopy       Copy photos/videos into a date-organized archive")
+    NSPrint("  photorenumber   Sort and renumber files chronologically")
+    NSPrint("  photodedup      Remove duplicate files and renumber")
+    NSPrint("  photocheck      Validate file dates match directory placement")
+    NSPrint("  photocheckexif  Display creation date metadata")
+    NSPrint("")
+    NSPrint("Run any tool with --help for detailed usage.")
+    NSPrint("")
+    NSPrint("Setup: create symbolic links to this binary:")
+    NSPrint("  ln -s PhotoToolsSwift photocopy")
+    NSPrint("  ln -s PhotoToolsSwift photorenumber")
+    NSPrint("  ln -s PhotoToolsSwift photodedup")
+    NSPrint("  ln -s PhotoToolsSwift photocheck")
+    NSPrint("  ln -s PhotoToolsSwift photocheckexif")
+    NSPrint("")
 }
 
 
@@ -72,6 +85,10 @@ func photoTools()
 //
 //---------------------------------------------------------------------------------------------------------------------
 
+func showHelp(_ arguments: [String]) -> Bool {
+    return arguments.contains("-help") || arguments.contains("--help")
+}
+
 func photoCopy(arguments: [String]) -> Int {
 
     var sourceDirectory = ""
@@ -85,31 +102,37 @@ func photoCopy(arguments: [String]) -> Int {
     for arg in arguments {
         if arg == "--include-live" {
             includeLive = true
+        } else if arg == "-help" || arg == "--help" {
+            // handled below
         } else {
             positionalArgs.append(arg)
         }
     }
 
-    guard positionalArgs.count == 2 else {
+    guard positionalArgs.count == 2, !showHelp(arguments) else {
         NSPrint("")
-        NSPrint("[ photoCopy ]")
+        NSPrint("photocopy — Copy photos and videos into a date-organized archive")
         NSPrint("")
-        NSPrint("Usage: photocopy [--include-live] <sourcePhotoDirectory> <rootArchiveDirectory:ie /Volumes/Photos>")
-        NSPrint("------------------------------------------------------------------")
-        NSPrint("This application takes a source directory argument and copies each JPG")
-        NSPrint("file to the archive directory argument placing the file in the correct YEAR")
-        NSPrint("and DAY creating the directory if required.")
+        NSPrint("Usage: photocopy [--include-live] <sourceDirectory> <archiveDirectory>")
         NSPrint("")
-        NSPrint("The application keeps track of modified YEAR/DAY directories")
-        NSPrint("and then dedups the files in the directory and then renumbers the files.")
+        NSPrint("Reads each JPG, JPEG, HEIC, and MOV file in the source directory,")
+        NSPrint("extracts the creation date from EXIF (photos) or QuickTime (videos)")
+        NSPrint("metadata, and copies the file into the archive under YYYY/MM-DD-YYYY/.")
         NSPrint("")
-        NSPrint("If a source JPG file contains no EXIF data with the photo creation")
-        NSPrint("date, then the file is placed in a directory named UNKNOWN_DATE ")
-        NSPrint("in the source directory.")
+        NSPrint("After copying, each modified destination directory is automatically")
+        NSPrint("deduplicated (byte-for-byte comparison) and renumbered chronologically.")
+        NSPrint("This means you can re-import the same photos without worrying about")
+        NSPrint("duplicates — they are removed automatically.")
         NSPrint("")
+        NSPrint("Files without creation date metadata are placed in an UNKNOWN_DATES")
+        NSPrint("directory inside the source directory for manual review.")
+        NSPrint("")
+        NSPrint("Live Photo MOV clips (short companion videos) are skipped by default.")
+        NSPrint("")
+        NSPrint("Options:")
         NSPrint("  --include-live   Include Live Photo MOV clips (skipped by default)")
-        NSPrint("------------------------------------------------------------------")
-        NSPrint(" ")
+        NSPrint("  -help, --help    Show this help message")
+        NSPrint("")
         return 0
     }
 
@@ -236,34 +259,24 @@ func photoCheckEXIF(arguments: [String]) -> Int
 {
     var directory = ""
     
-    guard arguments.count == 1 else {
+    guard arguments.count == 1, !showHelp(arguments) else {
         NSPrint("")
-        NSPrint("[ photoCheckEXIF ]")
+        NSPrint("photocheckexif — Display creation date metadata for photos and videos")
         NSPrint("")
-        NSPrint("Usage: photoCheckEXIF <directory>")
-        NSPrint("Usage: photoCheckEXIF <yearDirectory:ie 2014>")
-        NSPrint("Usage: photoCheckEXIF <dayDirectory: ie 01-02-2014>")
-        NSPrint("------------------------------------------------------------------")
-        NSPrint("This application takes a directory argument and lists")
-        NSPrint("all the photo files ending in .JPG.  If the photo file")
-        NSPrint("contains EXIF data that contains the date and time the")
-        NSPrint("photo was taken, it is listed as well.  If the file does")
-        NSPrint("not contain the data then a blank is shown for the photo")
-        NSPrint("creation date")
+        NSPrint("Usage: photocheckexif <directory>")
         NSPrint("")
-        NSPrint("If the directory passed is a DAY directory (01-01-2018) or")
-        NSPrint("application looks at each JPG file printing the file photo")
-        NSPrint("photo time")
+        NSPrint("Lists every supported file (JPG, JPEG, HEIC, MOV) in the given directory")
+        NSPrint("and displays its embedded creation date (EXIF for photos, QuickTime for")
+        NSPrint("videos). Files without creation date metadata are flagged.")
         NSPrint("")
-        NSPrint("If the directory referenced is a YEAR directory then")
-        NSPrint("then the application descends into each month directory listing")
-        NSPrint("each file's attributes.")
+        NSPrint("Accepts any directory type:")
+        NSPrint("  Day directory   (MM-DD-YYYY)  — lists files in that day")
+        NSPrint("  Year directory  (YYYY)        — descends into each day subdirectory")
+        NSPrint("  Other directory               — lists files directly")
         NSPrint("")
-        NSPrint("If the directory passed is a directory of any other type")
-        NSPrint("the application looks at each JPG file printing the photo")
-        NSPrint("time")
-        NSPrint("  ------------------------------------------------------------------")
-        NSPrint(" ")
+        NSPrint("Options:")
+        NSPrint("  -help, --help   Show this help message")
+        NSPrint("")
         return 0
     }
     
@@ -394,19 +407,22 @@ func photoDedup(arguments: [String]) -> Int
 {
     var directory = ""
     
-    guard arguments.count == 1 else {
+    guard arguments.count == 1, !showHelp(arguments) else {
         NSPrint("")
-        NSPrint("[ photoDedup ]")
+        NSPrint("photodedup — Remove duplicate files and renumber")
         NSPrint("")
-        NSPrint("Usage: photoDedup <dayDirectory: ie 01-02-2014>")
-        NSPrint("------------------------------------------------------------------")
-        NSPrint("This application takes a DAY directory argument and compares each")
-        NSPrint("JPG file against the others looking for duplicate files.  If it")
-        NSPrint("encounters a duplicate it removes the duplicate.")
+        NSPrint("Usage: photodedup <dayDirectory>")
         NSPrint("")
-        NSPrint("After deduping the files then firest renumbered.")
-        NSPrint("------------------------------------------------------------------")
-        NSPrint(" ")
+        NSPrint("Compares every file in a day directory (MM-DD-YYYY) against every")
+        NSPrint("other file using byte-for-byte comparison. When two files are")
+        NSPrint("identical, the duplicate is removed. After deduplication, the")
+        NSPrint("remaining files are renumbered chronologically by creation date.")
+        NSPrint("")
+        NSPrint("Only operates on day directories (e.g. 01-19-2018).")
+        NSPrint("")
+        NSPrint("Options:")
+        NSPrint("  -help, --help   Show this help message")
+        NSPrint("")
         return 0
     }
     
@@ -430,8 +446,10 @@ func photoDedup(arguments: [String]) -> Int
         let pd = PhotoDirectory(directoryName: directory)
         pd.dedup()
         pd.renumberPhotoFiles()
+    } else {
+        NSPrint("photoDedup: '%@' is not a day directory (expected MM-DD-YYYY), skipping", directory)
     }
-    
+
     return 0
 }
 
@@ -444,20 +462,22 @@ func photoRenumber(arguments: [String]) -> Int
 {
     var directory = ""
     
-    guard arguments.count == 1 else {
+    guard arguments.count == 1, !showHelp(arguments) else {
         NSPrint("")
-        NSPrint("[ photoRenumber ]")
+        NSPrint("photorenumber — Sort and renumber files chronologically")
         NSPrint("")
-        NSPrint("Usage: photoRenumber <dayDirectory: ie 01-02-2014>")
-        NSPrint("Usage: photoRenumber <yearDirectory:ie 2014>")
-        NSPrint("------------------------------------------------------------------")
-        NSPrint("This application takes a DAY or YEAR directory argument")
-        NSPrint("and renumbers all the JPG files in the DAY directory")
+        NSPrint("Usage: photorenumber <dayDirectory>")
         NSPrint("")
-        NSPrint("If the directory is a YEAR directory argument, the application")
-        NSPrint("will descend into each DAY directory renumbering each")
-        NSPrint("------------------------------------------------------------------")
-        NSPrint(" ")
+        NSPrint("Sorts all files in a day directory (MM-DD-YYYY) by their creation")
+        NSPrint("date and renumbers them sequentially (YYYY-MM-DD-0000, 0001, ...).")
+        NSPrint("This ensures files are in chronological order after adding or")
+        NSPrint("removing files.")
+        NSPrint("")
+        NSPrint("Only operates on day directories (e.g. 01-19-2018).")
+        NSPrint("")
+        NSPrint("Options:")
+        NSPrint("  -help, --help   Show this help message")
+        NSPrint("")
         return 0
     }
     
@@ -481,8 +501,10 @@ func photoRenumber(arguments: [String]) -> Int
         NSPrint("photoRenumber: \(directory)")
         let pd = PhotoDirectory(directoryName: directory)
         pd.renumberPhotoFiles()
+    } else {
+        NSPrint("photoRenumber: '%@' is not a day directory (expected MM-DD-YYYY), skipping", directory)
     }
-    
+
     return 0
 }
 
@@ -495,24 +517,26 @@ func photoCheck(arguments: [String]) -> Int
 {
     var directory = ""
     
-    guard arguments.count == 1 else {
+    guard arguments.count == 1, !showHelp(arguments) else {
         NSPrint("")
-        NSPrint("[ photoCheck ]")
+        NSPrint("photocheck — Validate that file dates match their directory placement")
         NSPrint("")
-        NSPrint("Usage: photoCheck <yearDirectory:ie 2014>")
-        NSPrint("Usage: photoCheck <dayDirectory: ie 01-02-2014>")
-        NSPrint("------------------------------------------------------------------")
-        NSPrint("This application takes a DAY or YEAR directory argument and lists")
-        NSPrint("all the photo files ending in .JPG comparing the files name format")
-        NSPrint("against its EXIF data taken information.")
-        NSPrint(" ")
-        NSPrint("If the dates do not agree it prints to the screen the ")
-        NSPrint("missclassification information but does not do anything else")
+        NSPrint("Usage: photocheck <dayDirectory | yearDirectory>")
         NSPrint("")
-        NSPrint("If the file contains no EXIF date taken information it simply")
-        NSPrint("lists this fact.")
-        NSPrint("  ------------------------------------------------------------------")
-        NSPrint(" ")
+        NSPrint("Compares each file's embedded creation date against the date implied")
+        NSPrint("by the directory it lives in. Reports any mismatches where a file's")
+        NSPrint("metadata says it belongs in a different day directory. Also flags")
+        NSPrint("files that have no creation date metadata.")
+        NSPrint("")
+        NSPrint("This is a read-only check — no files are moved or modified.")
+        NSPrint("")
+        NSPrint("Accepts:")
+        NSPrint("  Day directory   (MM-DD-YYYY)  — checks files in that day")
+        NSPrint("  Year directory  (YYYY)        — descends into each day subdirectory")
+        NSPrint("")
+        NSPrint("Options:")
+        NSPrint("  -help, --help   Show this help message")
+        NSPrint("")
         return 0
     }
     
@@ -594,12 +618,13 @@ func photoCheck(arguments: [String]) -> Int
         // photo EXIF data se we just return
         //-------------------------------------------------------------------------------------------------------------
         case .other:
+            NSPrint("photoCheck: '%@' is not a day or year directory, skipping", directory)
             return(0)
-        
+
     }
-    
+
     return(0);
-    
+
 }
 
 

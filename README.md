@@ -60,11 +60,25 @@ photocheckexif <directory>
 
 Use `--include-live` to copy Live Photo clips along with everything else.
 
+## UNKNOWN_DATES
+
+When `photocopy` encounters a file that has no embedded creation date metadata, it cannot determine which day directory the file belongs in. Rather than guessing or discarding the file, it copies it into an `UNKNOWN_DATES` directory inside the source directory for manual review. Common reasons a file ends up here:
+
+- The camera or app that created the file did not write creation date metadata
+- The file was edited or re-saved by software that stripped the original metadata
+- The file is corrupted or not a valid image/video
+
+## File Safety
+
+The only situation where a file is ever deleted is during deduplication (`photodedup`, or the automatic dedup step in `photocopy`). Deduplication compares files byte-for-byte — only files that are exactly identical are removed. No files are ever deleted based on name, date, size, or any other heuristic. All other operations (copy, rename, check) are non-destructive.
+
 ## Supported Formats
 
 - JPG / JPEG (EXIF metadata)
 - HEIC (EXIF metadata)
 - MOV (QuickTime metadata)
+
+PNG files are not supported. While PNGs can technically contain EXIF data, most PNGs (screenshots, web downloads, edited images) lack embedded creation dates, making them unreliable for date-based organization.
 
 ## Building
 
