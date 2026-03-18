@@ -32,7 +32,7 @@ You can also export originals from the Photos app (File > Export > Export Unmodi
 
 ## Tools
 
-The project builds a single binary that operates as five different tools via symbolic links:
+The project builds a single binary that operates as six different tools via symbolic links:
 
 | Command | Description |
 |---------|-------------|
@@ -40,16 +40,18 @@ The project builds a single binary that operates as five different tools via sym
 | `photorenumber` | Re-sort and sequentially renumber files in a directory by creation date |
 | `photodedup` | Remove duplicate files (binary comparison) and renumber |
 | `photocheck` | Validate that file creation dates match their directory placement |
-| `photocheckexif` | Display creation date metadata for photos and videos |
+| `photocheckexif` | Display EXIF creation date metadata for photos |
+| `videocheckqt` | Display QuickTime creation date metadata for videos |
 
 ## Usage
 
 ```
 photocopy [--include-live] <sourceDirectory> <archiveDirectory>
-photorenumber <dayDirectory|yearDirectory>
+photorenumber <dayDirectory>
 photodedup <dayDirectory>
 photocheck <yearDirectory|dayDirectory>
 photocheckexif <directory>
+videocheckqt <directory>
 ```
 
 ### Live Photo Handling
@@ -101,4 +103,5 @@ ln -s PhotoToolsSwift photorenumber
 ln -s PhotoToolsSwift photodedup
 ln -s PhotoToolsSwift photocheck
 ln -s PhotoToolsSwift photocheckexif
+ln -s PhotoToolsSwift videocheckqt
 ```

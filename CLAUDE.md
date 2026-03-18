@@ -10,7 +10,7 @@ When a file is in a day directory (MM-DD-YYYY), the directory's date is the sour
 
 ## Architecture
 
-- Single binary, five tools via symlink: `photocopy`, `photorenumber`, `photodedup`, `photocheck`, `photocheckexif`
+- Single binary, six tools via symlink: `photocopy`, `photorenumber`, `photodedup`, `photocheck`, `photocheckexif`, `videocheckqt`
 - `main.swift` dispatches based on program name
 - `PhotoFile` handles individual file metadata extraction and naming
 - `PhotoDirectory` handles batch operations on directories of files

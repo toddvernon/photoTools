@@ -4,6 +4,8 @@
 //---------------------------------------------------------------------------------------------------------------------
 
 import Foundation
+import AVFoundation
+import CoreMedia
 
 let defaultRootArchiveDirectory = "/Users/toddvernon/Pictures"
 
@@ -32,7 +34,8 @@ func photoTools()
     NSPrint("  photorenumber   Sort and renumber files chronologically")
     NSPrint("  photodedup      Remove duplicate files and renumber")
     NSPrint("  photocheck      Validate file dates match directory placement")
-    NSPrint("  photocheckexif  Display creation date metadata")
+    NSPrint("  photocheckexif  Display EXIF creation date metadata for photos")
+    NSPrint("  videocheckqt    Display QuickTime creation date metadata for videos")
     NSPrint("")
     NSPrint("Run any tool with --help for detailed usage.")
     NSPrint("")
@@ -42,6 +45,7 @@ func photoTools()
     NSPrint("  ln -s PhotoToolsSwift photodedup")
     NSPrint("  ln -s PhotoToolsSwift photocheck")
     NSPrint("  ln -s PhotoToolsSwift photocheckexif")
+    NSPrint("  ln -s PhotoToolsSwift videocheckqt")
     NSPrint("")
 }
 
@@ -71,6 +75,8 @@ func photoTools()
             return photoCheck(arguments: arguments)
         case "photocheckexif":
             return photoCheckEXIF(arguments: arguments)
+        case "videocheckqt":
+            return videoCheckQT(arguments: arguments)
         default:
         photoTools()
             
@@ -397,7 +403,141 @@ func photoCheckEXIF(arguments: [String]) -> Int
 
 
 //---------------------------------------------------------------------------------------------------------------------
-// photoDedup: 
+// videoCheckQT: Used to look for videos and print their QuickTime metadata
+//
+//---------------------------------------------------------------------------------------------------------------------
+func videoCheckQT(arguments: [String]) -> Int
+{
+    var directory = ""
+
+    guard arguments.count == 1, !showHelp(arguments) else {
+        NSPrint("")
+        NSPrint("videocheckqt — Display QuickTime creation date metadata for videos")
+        NSPrint("")
+        NSPrint("Usage: videocheckqt <directory>")
+        NSPrint("")
+        NSPrint("Lists every MOV file in the given directory and displays its embedded")
+        NSPrint("QuickTime creation date. Also reports duration and flags potential")
+        NSPrint("Live Photo clips (4.5 seconds or shorter). Files without creation")
+        NSPrint("date metadata are flagged.")
+        NSPrint("")
+        NSPrint("Accepts any directory type:")
+        NSPrint("  Day directory   (MM-DD-YYYY)  — lists videos in that day")
+        NSPrint("  Year directory  (YYYY)        — descends into each day subdirectory")
+        NSPrint("  Other directory               — lists videos directly")
+        NSPrint("")
+        NSPrint("Options:")
+        NSPrint("  -help, --help   Show this help message")
+        NSPrint("")
+        return 0
+    }
+
+    directory = arguments[0]
+
+    var year:  Int = 0
+    var month: Int = 0
+    var day:   Int = 0
+
+    let dc = PhotoDirectory.parseDirectoryName(directory, forYear: &year, forMonth: &month, forDay: &day)
+
+    switch( dc ) {
+
+        case .year:
+
+            if let contentOfDirectory = try? FileManager.default.contentsOfDirectory(atPath: directory) {
+
+                for subDirectory in contentOfDirectory {
+
+                    var subYear:  Int = 0
+                    var subMonth: Int = 0
+                    var subDay:   Int = 0
+
+                    let subDirectoryPath = (directory as NSString).appendingPathComponent(subDirectory)
+                    let subDirectoryType = PhotoDirectory.parseDirectoryName(subDirectoryPath, forYear: &subYear, forMonth: &subMonth, forDay: &subDay)
+
+                    if subDirectoryType == .day {
+                        videoCheckQTDirectory(subDirectoryPath)
+                    }
+                }
+            }
+
+        case .day:
+            videoCheckQTDirectory(directory)
+
+        case .other:
+            videoCheckQTDirectory(directory)
+    }
+
+    return 0
+}
+
+
+//---------------------------------------------------------------------------------------------------------------------
+// videoCheckQTDirectory: helper to check a single directory for MOV files
+//
+//---------------------------------------------------------------------------------------------------------------------
+func videoCheckQTDirectory(_ directory: String) {
+
+    var videoCount = 0
+    var missingDateCount = 0
+    var livePhotoCount = 0
+
+    guard let contentOfDirectory = try? FileManager.default.contentsOfDirectory(atPath: directory) else {
+        return
+    }
+
+    var hasVideos = false
+
+    for file in contentOfDirectory {
+
+        let filePath = (directory as NSString).appendingPathComponent(file)
+        let ext = (file as NSString).pathExtension
+
+        guard ext.caseInsensitiveCompare("MOV") == .orderedSame else {
+            continue
+        }
+
+        if !hasVideos {
+            NSPrint(" [ videocheckqt: \(directory) ]")
+            hasVideos = true
+        }
+
+        videoCount += 1
+
+        let photoFile = PhotoFile(withFile: filePath)
+        photoFile.checkDurationForLivePhoto()
+
+        let fileURL = URL(fileURLWithPath: filePath)
+        let asset = AVURLAsset(url: fileURL)
+        let duration = CMTimeGetSeconds(asset.duration)
+        let durationStr = String(format: "%.1fs", duration)
+
+        if photoFile.hasPhotoDateTime() {
+            var line = " QT(\(String(describing: photoFile.photoDate()))) \(durationStr): \(filePath)"
+            if photoFile.isLivePhoto {
+                line += " [Live Photo]"
+                livePhotoCount += 1
+            }
+            NSPrint("%@", line)
+        } else {
+            missingDateCount += 1
+            var line = " QT(          ) \(durationStr): \(filePath)"
+            if photoFile.isLivePhoto {
+                line += " [Live Photo]"
+                livePhotoCount += 1
+            }
+            NSPrint("%@", line)
+        }
+    }
+
+    if hasVideos {
+        NSPrint("  %d videos, %d Live Photos, %d missing creation date\n", videoCount, livePhotoCount, missingDateCount)
+    }
+}
+
+
+//---------------------------------------------------------------------------------------------------------------------
+// photoDedup:
 //
 //   this application walks through a day directory type and removes photos that are identical but
 //   by alternate names.  Once its done removing identical photos the files are renumbered

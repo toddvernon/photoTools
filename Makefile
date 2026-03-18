@@ -1,7 +1,7 @@
 PROJECT = PhotoToolsSwift
 SCHEME = PhotoToolsSwift
 INSTALL_DIR = /usr/local/bin
-TOOLS = photocopy photorenumber photodedup photocheck photocheckexif
+TOOLS = photocopy photorenumber photodedup photocheck photocheckexif videocheckqt
 DERIVED_DATA = $(HOME)/Library/Developer/Xcode/DerivedData
 
 .PHONY: build release clean install
