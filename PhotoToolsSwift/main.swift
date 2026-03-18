@@ -7,8 +7,6 @@ import Foundation
 import AVFoundation
 import CoreMedia
 
-let defaultRootArchiveDirectory = "/Users/toddvernon/Pictures"
-
 
 //---------------------------------------------------------------------------------------------------------------------
 //
