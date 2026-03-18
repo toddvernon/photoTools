@@ -143,6 +143,32 @@ func photoCopy(arguments: [String]) -> Int {
     sourceDirectory = positionalArgs[0]
     rootArchiveDirectory = positionalArgs[1]
 
+    //-------------------------------------------------------------------------------------------------------------
+    // validate inputs
+    //-------------------------------------------------------------------------------------------------------------
+    guard PhotoDirectory.isADirectory(sourceDirectory) else {
+        NSPrint("error: source directory does not exist: %@", sourceDirectory)
+        return 1
+    }
+
+    guard PhotoDirectory.isADirectory(rootArchiveDirectory) else {
+        NSPrint("error: archive directory does not exist: %@", rootArchiveDirectory)
+        return 1
+    }
+
+    let resolvedSource = (sourceDirectory as NSString).standardizingPath
+    let resolvedDest = (rootArchiveDirectory as NSString).standardizingPath
+
+    if resolvedSource == resolvedDest {
+        NSPrint("error: source and archive directories cannot be the same")
+        return 1
+    }
+
+    if resolvedSource.hasPrefix(resolvedDest + "/") {
+        NSPrint("error: source directory is inside the archive directory — this would cause recursive copying")
+        return 1
+    }
+
     NSPrint("photocopy:\(sourceDirectory) --> \(rootArchiveDirectory)/")
     
     var modifiedDestDirectorySet = Set<String>()
