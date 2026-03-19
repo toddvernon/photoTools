@@ -11,6 +11,7 @@
 		851E35432B8D30F2008E413C /* PhotoFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 851E35422B8D30F2008E413C /* PhotoFile.swift */; };
 		851E35452B8D310A008E413C /* PhotoDirectory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 851E35442B8D310A008E413C /* PhotoDirectory.swift */; };
 		851E35472B8D3129008E413C /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 851E35462B8D3129008E413C /* Util.swift */; };
+		85C6B9C22F6C7F1400FEF127 /* Version.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85C6B9C12F6C7F1400FEF127 /* Version.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +32,7 @@
 		851E35422B8D30F2008E413C /* PhotoFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoFile.swift; sourceTree = "<group>"; };
 		851E35442B8D310A008E413C /* PhotoDirectory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoDirectory.swift; sourceTree = "<group>"; };
 		851E35462B8D3129008E413C /* Util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
+		85C6B9C12F6C7F1400FEF127 /* Version.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Version.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +65,7 @@
 		851E353A2B8D30B8008E413C /* PhotoToolsSwift */ = {
 			isa = PBXGroup;
 			children = (
+				85C6B9C12F6C7F1400FEF127 /* Version.swift */,
 				851E353B2B8D30B8008E413C /* main.swift */,
 				851E35422B8D30F2008E413C /* PhotoFile.swift */,
 				851E35442B8D310A008E413C /* PhotoDirectory.swift */,
@@ -130,6 +133,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				851E35432B8D30F2008E413C /* PhotoFile.swift in Sources */,
+				85C6B9C22F6C7F1400FEF127 /* Version.swift in Sources */,
 				851E353C2B8D30B8008E413C /* main.swift in Sources */,
 				851E35452B8D310A008E413C /* PhotoDirectory.swift in Sources */,
 				851E35472B8D3129008E413C /* Util.swift in Sources */,
@@ -259,7 +263,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
 				DEVELOPMENT_TEAM = 5JNL28FW2P;
-				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = THV;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -273,7 +277,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
 				DEVELOPMENT_TEAM = 5JNL28FW2P;
-				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = THV;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
