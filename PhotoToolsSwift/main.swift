@@ -24,9 +24,9 @@ func NSPrint(_ format: String, _ args: CVarArg...) {
 func photoTools()
 {
     NSPrint("")
-    NSPrint("PhotoToolsSwift — Photo and video backup and organization tools")
+    NSPrint("PhotoToolsSwift %@ — Photo and video backup and organization tools", PHOTOTOOLS_VERSION)
     NSPrint("")
-    NSPrint("This binary provides five tools via symbolic links:")
+    NSPrint("Tools:")
     NSPrint("")
     NSPrint("  photocopy       Copy photos/videos into a date-organized archive")
     NSPrint("  photorenumber   Sort and renumber files chronologically")
@@ -36,14 +36,7 @@ func photoTools()
     NSPrint("  videocheckqt    Display QuickTime creation date metadata for videos")
     NSPrint("")
     NSPrint("Run any tool with --help for detailed usage.")
-    NSPrint("")
-    NSPrint("Setup: create symbolic links to this binary:")
-    NSPrint("  ln -s PhotoToolsSwift photocopy")
-    NSPrint("  ln -s PhotoToolsSwift photorenumber")
-    NSPrint("  ln -s PhotoToolsSwift photodedup")
-    NSPrint("  ln -s PhotoToolsSwift photocheck")
-    NSPrint("  ln -s PhotoToolsSwift photocheckexif")
-    NSPrint("  ln -s PhotoToolsSwift videocheckqt")
+    NSPrint("Run 'bash install.sh' to install all tools to /usr/local/bin.")
     NSPrint("")
 }
 
@@ -53,8 +46,6 @@ func photoTools()
 //
 //---------------------------------------------------------------------------------------------------------------------
 @discardableResult func main() -> Int {
-    
-    NSPrint("CWD=\(FileManager.default.currentDirectoryPath)")
     
     var arguments = CommandLine.arguments
     let appName = (arguments.removeFirst() as NSString).lastPathComponent

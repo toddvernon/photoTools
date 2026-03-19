@@ -7,7 +7,7 @@
 PREFIX="${PREFIX:-/usr/local}"
 BIN_DIR="$PREFIX/bin"
 BINARY="PhotoToolsSwift"
-TOOLS="photocopy photorenumber photodedup photocheck photocheckexif videocheckqt"
+TOOLS="phototools photocopy photorenumber photodedup photocheck photocheckexif videocheckqt"
 
 echo "Installing PhotoToolsSwift to $PREFIX..."
 
