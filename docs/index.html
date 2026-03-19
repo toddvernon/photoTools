@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>photoTools - Photo &amp; Video Archive Manager</title>
+    <style>
+        :root {
+            --bg: #fdfdfd;
+            --bg-card: #f4f4f4;
+            --bg-elevated: #eaeaea;
+            --accent: #f59e0b;
+            --accent-dim: #d97706;
+            --accent-glow: rgba(245, 158, 11, 0.1);
+            --text: #1d1d1f;
+            --text-muted: #6e6e73;
+            --text-bright: #1d1d1f;
+            --border: rgba(0,0,0,0.08);
+            --border-accent: rgba(245, 158, 11, 0.35);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ── Nav ── */
+        nav {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: rgba(253,253,253,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 100;
+        }
+
+        nav .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-dim);
+            text-decoration: none;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--text); }
+
+        .nav-links .gh-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-card);
+            padding: 7px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .nav-links .gh-link:hover {
+            border-color: var(--border-accent);
+        }
+
+        .nav-links .gh-link svg { width: 16px; height: 16px; fill: currentColor; }
+
+        /* ── Hero ── */
+        .hero {
+            padding: 100px 0 60px;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-glow);
+            border: 1px solid var(--border-accent);
+            color: var(--accent-dim);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            margin-bottom: 28px;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            color: var(--text-bright);
+            letter-spacing: -0.03em;
+        }
+
+        .hero h1 .accent {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 620px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #fbbf24;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid rgba(0,0,0,0.15);
+        }
+
+        .btn-ghost:hover {
+            color: var(--text);
+            border-color: rgba(0,0,0,0.3);
+        }
+
+        /* ── Section base ── */
+        section { padding: 100px 0; }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-dim);
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text-bright);
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .section-desc {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            line-height: 1.7;
+        }
+
+        .section-desc.centered {
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .centered-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        /* ── Workflow strip ── */
+        .workflow {
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 70px 0;
+        }
+
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+
+        .workflow-item h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-bright);
+            margin-bottom: 8px;
+        }
+
+        .workflow-item p {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        .workflow-item .step {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            color: var(--accent-dim);
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* ── Tools grid ── */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 60px;
+        }
+
+        .tool-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            transition: border-color 0.2s;
+        }
+
+        .tool-card:hover {
+            border-color: var(--border-accent);
+        }
+
+        .tool-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-bright);
+            margin-bottom: 4px;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+        }
+
+        .tool-card .usage {
+            font-size: 0.82rem;
+            color: var(--accent-dim);
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            margin-bottom: 10px;
+        }
+
+        .tool-card p {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            line-height: 1.65;
+        }
+
+        /* ── Terminal demo block ── */
+        .terminal {
+            background: #1d1d1f;
+            border: 1px solid rgba(0,0,0,0.12);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+        }
+
+        .terminal-bar {
+            display: flex;
+            gap: 6px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+        }
+
+        .terminal-body {
+            padding: 20px;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #e4e4e7;
+            line-height: 1.8;
+        }
+
+        .terminal-body .comment { color: #86868b; }
+        .terminal-body .cmd { color: #fbbf24; }
+        .terminal-body .path { color: #f5a0b0; }
+
+        /* ── Features section ── */
+        .features {
+            border-top: 1px solid var(--border);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-bright);
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            line-height: 1.65;
+        }
+
+        /* ── Directory structure ── */
+        .dir-structure {
+            border-top: 1px solid var(--border);
+        }
+
+        .dir-demo {
+            max-width: 680px;
+            margin: 0 auto;
+            margin-top: 40px;
+        }
+
+        /* ── Install ── */
+        .install {
+            border-top: 1px solid var(--border);
+        }
+
+        /* ── Footer ── */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--accent-dim);
+            text-decoration: none;
+        }
+
+        footer a:hover { color: var(--accent); }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.6rem; }
+            .workflow-grid { grid-template-columns: 1fr; gap: 24px; }
+            .tools-grid { grid-template-columns: 1fr; }
+            .features-grid { grid-template-columns: 1fr; }
+            .nav-links a:not(.gh-link) { display: none; }
+            section { padding: 60px 0; }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 2rem; }
+            .section-title { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+    <div class="container">
+        <a href="#" class="nav-logo">photoTools</a>
+        <div class="nav-links">
+            <a href="#tools">Tools</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#install">Install</a>
+            <a href="https://github.com/toddvernon/photoTools" class="gh-link">
+                <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                GitHub
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-badge">Open Source &middot; macOS</div>
+        <h1>Photos in. <span class="accent">Organized out.</span></h1>
+        <p class="subtitle">
+            Command-line tools for backing up and organizing photos and videos into a structured archive by date. Connect your phone, download, run one command. Duplicates handled automatically. Works great as a family photo archive.
+        </p>
+        <div class="hero-cta">
+            <a href="https://github.com/toddvernon/photoTools/releases/latest/download/phototools-macos.tar.gz" class="btn btn-primary">Download for macOS</a>
+            <a href="https://github.com/toddvernon/photoTools" class="btn btn-ghost">View Source</a>
+        </div>
+        <p style="color:var(--text-muted); font-size:0.85rem;"><strong>macOS users:</strong> Do not run the tools directly until you run <code style="color:var(--accent-dim);">bash install.sh</code> from the extracted archive. The installer clears the macOS Gatekeeper restriction automatically.</p>
+    </div>
+</section>
+
+<!-- Workflow strip -->
+<section class="workflow">
+    <div class="container">
+        <div class="workflow-grid">
+            <div class="workflow-item">
+                <span class="step">1. Download</span>
+                <h3>Get photos off your phone</h3>
+                <p>Open Image Capture on your Mac and download photos and videos into any folder. Don't worry about what you've already imported&mdash;just download everything.</p>
+            </div>
+            <div class="workflow-item">
+                <span class="step">2. Run photocopy</span>
+                <h3>One command sorts everything</h3>
+                <p>photocopy reads the creation date from each file's EXIF or QuickTime metadata, copies it into the correct year and day directory, and renumbers chronologically.</p>
+            </div>
+            <div class="workflow-item">
+                <span class="step">3. Done</span>
+                <h3>Duplicates handled automatically</h3>
+                <p>Files are compared byte-for-byte. Exact duplicates are removed. New photos are merged into the correct position. Your archive stays clean without any manual work.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Tools -->
+<section id="tools">
+    <div class="container">
+        <div class="centered-header">
+            <p class="section-label">Tools</p>
+            <h2 class="section-title">Six tools, one binary</h2>
+            <p class="section-desc centered">A single binary that operates as six different tools via symbolic links. The installer creates all the links for you.</p>
+        </div>
+
+        <div class="tools-grid">
+            <div class="tool-card">
+                <h3>photocopy</h3>
+                <p class="usage">photocopy [--include-live] &lt;source&gt; &lt;archive&gt;</p>
+                <p>Copy photos and videos from a source directory into a date-organized archive. Automatically deduplicates and renumbers after copying. Skips Live Photo MOV clips by default.</p>
+            </div>
+            <div class="tool-card">
+                <h3>photorenumber</h3>
+                <p class="usage">photorenumber &lt;dayDirectory&gt;</p>
+                <p>Sort all files in a day directory by creation date and renumber them sequentially. Run this after manually adding or removing files.</p>
+            </div>
+            <div class="tool-card">
+                <h3>photodedup</h3>
+                <p class="usage">photodedup &lt;dayDirectory&gt;</p>
+                <p>Remove duplicate files using byte-for-byte comparison. Only exact duplicates are removed&mdash;no guessing based on name, size, or date. Renumbers after dedup.</p>
+            </div>
+            <div class="tool-card">
+                <h3>photocheck</h3>
+                <p class="usage">photocheck &lt;yearDir | dayDir&gt;</p>
+                <p>Validate that each file's embedded creation date matches the directory it lives in. Read-only&mdash;reports mismatches without moving anything.</p>
+            </div>
+            <div class="tool-card">
+                <h3>photocheckexif</h3>
+                <p class="usage">photocheckexif &lt;directory&gt;</p>
+                <p>Display the EXIF creation date metadata for every photo in a directory. Flags files that have no embedded creation date.</p>
+            </div>
+            <div class="tool-card">
+                <h3>videocheckqt</h3>
+                <p class="usage">videocheckqt &lt;directory&gt;</p>
+                <p>Display QuickTime creation date and duration for every MOV file. Flags potential Live Photo clips (4.5 seconds or shorter).</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section id="how-it-works" class="dir-structure">
+    <div class="container">
+        <div class="centered-header">
+            <p class="section-label">How It Works</p>
+            <h2 class="section-title">Date-organized directory structure</h2>
+            <p class="section-desc centered">Photos and videos are organized by year and day. Each file is renamed with its creation date and a sequential number.</p>
+        </div>
+
+        <div class="dir-demo">
+            <div class="terminal">
+                <div class="terminal-bar">
+                    <div class="terminal-dot"></div>
+                    <div class="terminal-dot"></div>
+                    <div class="terminal-dot"></div>
+                </div>
+                <div class="terminal-body">
+                    <div><span class="comment"># Archive structure</span></div>
+                    <div><span class="path">/Volumes/Photos/</span></div>
+                    <div>&nbsp;&nbsp;<span class="path">2024/</span></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="path">03-15-2024/</span></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2024-03-15-0000.JPG</div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2024-03-15-0001.HEIC</div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2024-03-15-0002.MOV</div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="path">07-04-2024/</span></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2024-07-04-0000.HEIC</div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2024-07-04-0001.HEIC</div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2024-07-04-0002.MOV</div>
+                    <br>
+                    <div><span class="comment"># Import new photos</span></div>
+                    <div><span class="cmd">photocopy</span> ~/Downloads/phone-photos <span class="path">/Volumes/Photos</span></div>
+                    <br>
+                    <div><span class="comment"># Files without dates go here for manual review</span></div>
+                    <div><span class="path">~/Downloads/phone-photos/UNKNOWN_DATES/</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="features">
+    <div class="container">
+        <div class="centered-header">
+            <p class="section-label">Details</p>
+            <h2 class="section-title">Built for real photo libraries</h2>
+            <p class="section-desc centered">Designed around actual workflows&mdash;importing from phones, merging family archives, and keeping everything organized over years.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>Family archive friendly</h3>
+                <p>Everyone in the family can connect their phone, download to a folder, and run photocopy against the same archive. All photos end up organized together by date, duplicates removed automatically.</p>
+            </div>
+            <div class="feature-card">
+                <h3>No data loss</h3>
+                <p>Files are only ever deleted during deduplication, and only when they are byte-for-byte identical. All other operations&mdash;copy, rename, check&mdash;are non-destructive.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Live Photo handling</h3>
+                <p>Live Photo MOV clips (short companion videos paired with HEIC files) are skipped by default. Use <code style="color:var(--accent-dim);">--include-live</code> to import them along with everything else.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Directory date wins</h3>
+                <p>If you manually place a file in a day directory, that directory's date takes precedence over the file's metadata. The tools will never silently move your files based on EXIF data.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Install -->
+<section class="install" id="install">
+    <div class="container">
+        <div class="centered-header">
+            <p class="section-label">Get Started</p>
+            <h2 class="section-title">Download and run, or build from source</h2>
+            <p class="section-desc centered">Grab the binary and go. Or clone the repo and build it yourself.</p>
+        </div>
+        <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:16px;">
+            <a href="https://github.com/toddvernon/photoTools/releases/latest/download/phototools-macos.tar.gz" class="btn btn-primary">Download for macOS</a>
+        </div>
+        <p style="text-align:center; color:var(--text-muted); font-size:0.88rem; margin-bottom:40px;"><strong>macOS users:</strong> Do not run the tools directly until you run <code style="color:var(--accent-dim);">bash install.sh</code> from the extracted archive. The installer clears the macOS Gatekeeper restriction automatically.</p>
+        <div class="terminal" style="max-width:680px; margin:0 auto;">
+            <div class="terminal-bar">
+                <div class="terminal-dot"></div>
+                <div class="terminal-dot"></div>
+                <div class="terminal-dot"></div>
+            </div>
+            <div class="terminal-body">
+                <div><span class="comment"># Or build from source</span></div>
+                <div><span class="cmd">git clone</span> https://github.com/toddvernon/photoTools.git</div>
+                <div><span class="cmd">cd</span> <span class="path">photoTools</span></div>
+                <div><span class="cmd">make install</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Supported Formats -->
+<section style="border-top: 1px solid var(--border); padding: 60px 0;">
+    <div class="container">
+        <div class="centered-header" style="margin-bottom:0;">
+            <p class="section-label">Supported Formats</p>
+            <div style="display:flex; justify-content:center; gap:24px; margin-top:20px; flex-wrap:wrap;">
+                <span style="background:var(--bg-card); border:1px solid var(--border); padding:10px 24px; border-radius:8px; font-family:'SF Mono',Monaco,'Courier New',monospace; font-size:0.9rem; color:var(--text);">JPG / JPEG</span>
+                <span style="background:var(--bg-card); border:1px solid var(--border); padding:10px 24px; border-radius:8px; font-family:'SF Mono',Monaco,'Courier New',monospace; font-size:0.9rem; color:var(--text);">HEIC</span>
+                <span style="background:var(--bg-card); border:1px solid var(--border); padding:10px 24px; border-radius:8px; font-family:'SF Mono',Monaco,'Courier New',monospace; font-size:0.9rem; color:var(--text);">MOV</span>
+            </div>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-top:16px;">EXIF metadata for photos, QuickTime metadata for videos.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <p>
+            Open source under the Apache 2.0 License.<br>
+            <a href="https://github.com/toddvernon/photoTools">GitHub</a> &middot;
+            <a href="https://github.com/toddvernon">@toddvernon</a>
+        </p>
+    </div>
+</footer>
+
+</body>
+</html>
